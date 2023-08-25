@@ -27,7 +27,8 @@ def make_arithmetic_transformer_config_dictionary():
         }
 
 
-
+class DummyClass():
+    pass
 
 
 def params_feature_set_selector(trial, name=None, names_list = None, subset_dict=None):
@@ -53,11 +54,17 @@ def params_feature_set_selector(trial, name=None, names_list = None, subset_dict
 
     subset_name = trial.suggest_categorical(f'subset_name_{name}', names_list)
 
-    params =    {'name': subset_name,
+    if isinstance(subset_dict[subset_name], types.FunctionType):
+        params =    {'name': DummyClass(),
+                    'sel_subset': subset_dict[subset_name](),
+                }
+    else:
+        params =    {'name': subset_name,
                     'sel_subset': subset_dict[subset_name],
                 }
 
     return params
+
 
 def make_FSS_config_dictionary(subsets=None, n_features=None, feature_names=None):
     """Create the search space of parameters for FeatureSetSelector.
@@ -77,8 +84,12 @@ def make_FSS_config_dictionary(subsets=None, n_features=None, feature_names=None
     if subsets is None and n_features is None:
         raise ValueError('At least one of the parameters must be provided')
     
-    if isinstance(subsets, str):
+    if isinstance(subsets, types.FunctionType):
+        subset_dict = {"one":subsets}
+
+    elif isinstance(subsets, str):
         df = pd.read_csv(subsets,header=None,index_col=0)
+        df.set_index(0,inplace=True)
         df['features'] = df.apply(lambda x: list([x[c] for c in df.columns]),axis=1) 
         subset_dict = {}
         for row in df.index:
@@ -98,7 +109,6 @@ def make_FSS_config_dictionary(subsets=None, n_features=None, feature_names=None
     return {FeatureSetSelector: partial(params_feature_set_selector, names_list = names_list, subset_dict=subset_dict)}
 
 
-
 from tpot2.builtin_modules import Passthrough
 
 def params_passthrough(trial, name=None):
@@ -106,3 +116,4 @@ def params_passthrough(trial, name=None):
 
 def make_passthrough_config_dictionary():
     return {Passthrough: params_passthrough}
+

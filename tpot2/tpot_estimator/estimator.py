@@ -955,5 +955,3 @@ class TPOTEstimator(BaseEstimator):
                 return self.evaluated_individuals
             else:
                 return self.evaluated_individuals[self.evaluated_individuals["Pareto_Front"]==1]
-
-
