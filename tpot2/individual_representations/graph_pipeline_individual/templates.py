@@ -52,13 +52,8 @@ def estimator_graph_individual_generator(
                         for _ in range(np.random.randint(0,min(n_nodes,3))):
                             func = np.random.choice(starting_ops)
                             func()
-
-<<<<<<< HEAD:tpot2/individual_representations/graph_pipeline_individual/templates.py
-=======
-                for _ in range(np.random.randint(0,ind.graph.number_of_nodes())):
-                     ind._mutate_add_edge()
->>>>>>> 99b23e4 (crossover and mutation methods):tpot2/representations/graph_pipeline_individual/templates.py
                 
+
                 yield ind
 
             
@@ -70,4 +65,3 @@ class BaggingCompositeGraphSklearn():
 class BoostingCompositeGraphSklearn():
     def __init__(self) -> None:
         pass
-
