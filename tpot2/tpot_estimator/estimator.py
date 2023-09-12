@@ -101,6 +101,9 @@ class TPOTEstimator(BaseEstimator):
                         verbose = 0,
                         scatter = True,
 
+                        #experimental
+                        intial_population_generator = tpot2.individual_representations.graph_pipeline_individual.estimator_graph_individual_generator,
+
                         ):
                         
         '''
@@ -523,6 +526,9 @@ class TPOTEstimator(BaseEstimator):
         self.evaluated_individuals = None
 
 
+        self.intial_population_generator = intial_population_generator
+
+
         set_dask_settings()
 
 
@@ -664,7 +670,7 @@ class TPOTEstimator(BaseEstimator):
                 **kwargs,
             )
 
-        self.individual_generator_instance = tpot2.individual_representations.graph_pipeline_individual.estimator_graph_individual_generator(   
+        self.individual_generator_instance = self.intial_population_generator(   
                                                             inner_config_dict=inner_config_dict,
                                                             root_config_dict=root_config_dict,
                                                             leaf_config_dict=leaf_config_dict,

@@ -56,6 +56,51 @@ def estimator_graph_individual_generator(
 
                 yield ind
 
+def estimator_graph_individual_intializer(
+          root_config_dict,
+          inner_config_dict=None,
+          leaf_config_dict=None,
+          max_size = np.inf, 
+          linear_pipeline = False,
+          **kwargs,
+):
+     # Choose a number between 1 and 10 uniformly at random to serve as the size of the graph
+     # Add one root node
+     # Then keep adding either an inner node or a leaf node until the required number of nodes is reached.
+     while True:
+          
+        n_nodes = np.random.randint(1, 10)
+        graph = nx.DiGraph()
+        k = np.random.choice(list(root_config_dict.keys()))
+        root = create_node(config_dict={k:root_config_dict[k]})
+        graph.add_node(root)
+        
+        ind = GraphIndividual(inner_config_dict=inner_config_dict,  
+                            leaf_config_dict=leaf_config_dict,
+                            root_config_dict=root_config_dict,
+                            initial_graph = graph,
+                            
+                            max_size = max_size, 
+                            linear_pipeline = linear_pipeline,
+                            
+                            **kwargs,
+                            )
+        starting_ops = []
+        if inner_config_dict is not None:
+            starting_ops.append(ind._mutate_insert_inner_node)
+        if leaf_config_dict is not None:
+            starting_ops.append(ind._mutate_insert_leaf)
+            
+        if len(starting_ops) > 0:
+            for _ in range(n_nodes-1):
+                        func = np.random.choice(starting_ops)
+                        func()
+
+        yield ind
+
+
+
+
             
 
 class BaggingCompositeGraphSklearn():
