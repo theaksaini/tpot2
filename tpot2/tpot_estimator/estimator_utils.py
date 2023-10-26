@@ -41,8 +41,14 @@ def get_configuration_dictionary(options, n_samples, n_features, classification,
         elif option == "classifiers":
             config_dict.update(tpot2.config.make_classifier_config_dictionary(n_samples=n_samples, n_classes=n_classes))
 
+        elif option == "classifiers_sklearnex":
+            config_dict.update(tpot2.config.make_sklearnex_classifier_config_dictionary(n_samples=n_samples, n_classes=n_classes))
+
         elif option == "regressors":
             config_dict.update(tpot2.config.make_regressor_config_dictionary(n_samples=n_samples))
+
+        elif option == "regressors_sklearnex":
+            config_dict.update(tpot2.config.make_sklearnex_regressor_config_dictionary(n_samples=n_samples))
 
         elif option == "transformers":
             config_dict.update(tpot2.config.make_transformer_config_dictionary(n_features=n_features))
@@ -168,7 +174,12 @@ def convert_to_float(x):
 
 
 
-
+def check_if_y_is_encoded(y):
+    '''
+    checks if the target y is composed of sequential ints from 0 to N
+    '''
+    y = sorted(set(y))
+    return all(i == j for i, j in enumerate(y))
 
 
 
