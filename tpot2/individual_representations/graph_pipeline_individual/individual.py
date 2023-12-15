@@ -48,9 +48,11 @@ class GraphKey():
     '''
 
     def __init__(self, graph, matched_label='label', sample_weight=None) -> None:#['hyperparameters', 'method_class']) -> None:
+    def __init__(self, graph, matched_label='label', sample_weight=None) -> None:#['hyperparameters', 'method_class']) -> None:
 
 
         self.graph = graph
+        self.sample_weight = np.array(sample_weight)
         self.sample_weight = np.array(sample_weight)
         self.matched_label = matched_label
         self.node_match = partial(node_match, matched_labels=[matched_label])

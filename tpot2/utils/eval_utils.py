@@ -228,7 +228,7 @@ def parallel_eval_objective_list2(individual_list,
             
             submitted_futures[future] = {"individual": individual,
                                         "time": time.time(),}
-            
+            #print("inside parallel eval", individual, individual.sample_weight)
             submitted_inds.add(individual.unique_id())
 
 

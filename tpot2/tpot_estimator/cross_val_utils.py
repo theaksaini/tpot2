@@ -6,7 +6,9 @@ import sklearn
 import numpy as np
 
 def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_weight=None):
+def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_weight=None):
     #check if scores is not iterable
+    #print("Sample weight ", sample_weight, len(sample_weight))
     if not isinstance(scorers, Iterable): 
         scorers = [scorers]
     scores = []

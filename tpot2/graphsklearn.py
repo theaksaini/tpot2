@@ -65,6 +65,8 @@ def _method_name(name, estimator, method):
 def estimator_fit_transform_override_cross_val_predict(estimator, X, y, cv=5, method='auto',subset_indexes=None,  **fit_params):
 
     method = _method_name(name=estimator.__class__.__name__, estimator=estimator, method=method)
+    print("Estimator params: ", X.shape)
+    print(fit_params)
     
     if cv > 1:
         #TODO subset indexes for cross val predict
@@ -115,7 +117,7 @@ def fit_sklearn_digraph(graph: nx.DiGraph,
         cross_val_predict_cv = 0, #func(est,X,y) -> transformed_X
         memory = None,
         topo_sort = None,
-        sample_weight = None
+        sample_weight = None, 
         ):
 
     memory = check_memory(memory)
@@ -149,7 +151,7 @@ def fit_sklearn_digraph(graph: nx.DiGraph,
         #if i == len(topo_sort)-1: #last method doesn't need transformed.
         #    instance.fit(this_X, y)
         
-
+        #print("Sample weight ", sample_weight)
         if issubclass(type(instance), sklearn.base.RegressorMixin) or issubclass(type(instance), sklearn.base.ClassifierMixin):
             if sample_weight is not None:
                 transformed, instance = estimator_fit_transform_override_cross_val_predict_cached(instance, this_X, y, cv=cross_val_predict_cv, method=method,subset_indexes=subset_indexes, sample_weight=sample_weight)
@@ -354,7 +356,7 @@ class GraphPipeline(_BaseComposition):
 
             if self.drop_subset_column:
                 X = np.delete(X, self.subset_column, axis=1)
-
+        #print("Sample weight ", sample_weight, len(sample_weight))
         fit_sklearn_digraph(   graph=self.graph,
                                 X=X,
                                 y=y,
@@ -363,7 +365,7 @@ class GraphPipeline(_BaseComposition):
                                 memory = self.memory,
                                 topo_sort = self.topo_sorted_nodes,
                                 subset_col = subset_col,
-                                sample_weight = sample_weight
+                                sample_weight=sample_weight,
                                 )
         
         return self
