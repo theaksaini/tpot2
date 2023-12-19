@@ -108,6 +108,8 @@ class TPOTEstimator(BaseEstimator):
                         verbose = 0,
                         scatter = True,
 
+                        sensitive_features = None,
+
                          # random seed for random number generator (rng)
                         random_state = None,
 
@@ -557,11 +559,12 @@ class TPOTEstimator(BaseEstimator):
 
         self.label_encoder_ = None
 
+        self.sensitive_features = sensitive_features
 
         set_dask_settings()
 
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         if self.client is not None: #If user passed in a client manually
            _client = self.client
         else:
@@ -722,6 +725,7 @@ class TPOTEstimator(BaseEstimator):
                                                             hyperparameter_probability=self.hyperparameter_probability,
                                                             hyper_node_probability=self.hyper_node_probability,
                                                             hyperparameter_alpha=self.hyperparameter_alpha,
+                                                            sensitive_features=self.sensitive_features,
                                                             rng_=self.rng,
                                                                 )
 

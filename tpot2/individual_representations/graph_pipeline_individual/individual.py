@@ -47,10 +47,11 @@ class GraphKey():
         The node attribute to consider for the hash.
     '''
 
-    def __init__(self, graph, matched_label='label') -> None:#['hyperparameters', 'method_class']) -> None:
+    def __init__(self, graph, matched_label='label', sample_weight=None) -> None:#['hyperparameters', 'method_class']) -> None:
 
 
         self.graph = graph
+        self.sample_weight = np.array(sample_weight)
         self.matched_label = matched_label
         self.node_match = partial(node_match, matched_labels=[matched_label])
         self.key = int(nx.weisfeiler_lehman_graph_hash(self.graph, node_attr=self.matched_label),16) #hash(tuple(sorted([val for (node, val) in self.graph.degree()])))
@@ -64,7 +65,7 @@ class GraphKey():
 
     #If hash is same, use __eq__ to know if they are actually different
     def __eq__(self, other):
-        return nx.is_isomorphic(self.graph, other.graph, node_match=self.node_match)
+        return nx.is_isomorphic(self.graph, other.graph, node_match=self.node_match) and np.array_equal(self.sample_weight, other.sample_weight)
 
 def node_match(n1,n2, matched_labels):
     return all( [ n1[m] == n2[m] for m in matched_labels])
@@ -123,6 +124,9 @@ class GraphIndividual(BaseIndividual):
                 unique_subset_values = None,
                 initial_subset_values = None,
                 rng_=None,
+                
+                sensitive_features = None,
+                sample_weight  = None,
                 ):
 
         self.__debug = False
@@ -232,6 +236,13 @@ class GraphIndividual(BaseIndividual):
                                         self._optimize_optuna_all_methods_full_pipeline]
 
         self.key = None
+
+        #Reweighing
+        self.sensitive_features = sensitive_features
+        if sensitive_features is not None:
+            self.sample_weight = np.ones(2**(len(self.sensitive_features)+ 1)) # Assuming all sensistive features and target variable are binary valued
+        else:
+            self.sample_weight = None
 
     def select_config_dict(self, node):
         #check if the node is root, leaf, or inner
@@ -522,6 +533,13 @@ class GraphIndividual(BaseIndividual):
         rng = np.random.default_rng(rng_)
         self.key = None
         graph = self.select_graphindividual(rng_=rng)
+        if self.sample_weight is not None:
+            for i in range(len(self.sample_weight)):
+                if rng.random()<0.8:
+                    if rng.random()<0.5:
+                        self.sample_weight[i] +=1
+                    else:
+                        self.sample_weight[i] -=1
         return graph._mutate(rng_=rng)
 
     def _mutate(self, rng_=None):
@@ -1152,7 +1170,7 @@ class GraphIndividual(BaseIndividual):
                 g.nodes[n]['hyperparameters'] = n.hyperparameters
 
             g = nx.convert_node_labels_to_integers(g)
-            self.key = GraphKey(graph=g)
+            self.key = GraphKey(graph=g, sample_weight=self.sample_weight)
 
         return self.key
 

@@ -5,7 +5,7 @@ import pandas as pd
 import sklearn
 import numpy as np
 
-def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None):
+def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_weight=None):
     #check if scores is not iterable
     if not isinstance(scorers, Iterable): 
         scorers = [scorers]
@@ -25,7 +25,7 @@ def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None):
 
 
             start = time.time()
-            this_fold_pipeline.fit(X_train,y_train)
+            this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
             duration = time.time() - start
 
             this_fold_scores = [sklearn.metrics.get_scorer(scorer)(this_fold_pipeline, X_test, y_test) for scorer in scorers] 
@@ -52,7 +52,7 @@ def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None):
             y_train, y_test = y[train_index], y[test_index]
 
         start = time.time()
-        this_fold_pipeline.fit(X_train,y_train)
+        this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
         duration = time.time() - start
         this_fold_scores = [sklearn.metrics.get_scorer(scorer)(this_fold_pipeline, X_test, y_test) for scorer in scorers] 
         return this_fold_scores

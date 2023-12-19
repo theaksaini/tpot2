@@ -605,8 +605,6 @@ class BaseEvolver():
     def evaluate_population_full(self, budget=None):
         individuals_to_evaluate = self.get_unevaluated_individuals(self.objective_names, budget=budget,)
 
-        #print("evaluating this many individuals: ", len(individuals_to_evaluate))
-
         if len(individuals_to_evaluate) == 0:
             if self.verbose > 3:
                 print("No new individuals to evaluate")

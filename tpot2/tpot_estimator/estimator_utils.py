@@ -99,9 +99,27 @@ def recursive_with_defaults(config_dict, n_samples, n_features, classification, 
     return config_dict
 
 
+# Function to convert binary to decimal
+def binary_to_decimal(list_of_nums):
+    list_of_nums = [str(int(x)) for x in list_of_nums]
+    decimal_value = int(''.join(list_of_nums), 2)
+    return decimal_value
 
 def objective_function_generator(pipeline, x,y, scorers, cv, other_objective_functions, memory=None, cross_val_predict_cv=None, subset_column=None, step=None, budget=None, generation=1,is_classification=True):
+    sample_weight = pipeline.sample_weight
+    sensitive_features = pipeline.sensitive_features
     pipeline = pipeline.export_pipeline(memory=memory, cross_val_predict_cv=cross_val_predict_cv, subset_column=subset_column)
+    
+    #get weights for all training cases
+    if sensitive_features is not None:
+        sensitive_columns = x.loc[:, sensitive_features]
+        sensitive_columns['target'] = y
+        all_indices= sensitive_columns[sensitive_features+['target']].apply(binary_to_decimal, axis=1)
+        all_indices = all_indices.to_numpy()
+        sample_weights_full = np.array(sample_weight[all_indices])
+    else:
+        sample_weights_full = None
+    
     if budget is not None and budget < 1:
         if is_classification:
             x,y = sklearn.utils.resample(x,y, stratify=y, n_samples=int(budget*len(x)), replace=False, random_state=1)
@@ -114,7 +132,7 @@ def objective_function_generator(pipeline, x,y, scorers, cv, other_objective_fun
             n_splits = cv.n_splits
 
     if len(scorers) > 0:
-        cv_obj_scores = cross_val_score_objective(sklearn.base.clone(pipeline),x,y,scorers=scorers, cv=cv , fold=step)
+        cv_obj_scores = cross_val_score_objective(sklearn.base.clone(pipeline),x,y,scorers=scorers, cv=cv , fold=step, sample_weight=sample_weights_full)
     else:
         cv_obj_scores = []
 
@@ -127,11 +145,11 @@ def objective_function_generator(pipeline, x,y, scorers, cv, other_objective_fun
 
     return np.concatenate([cv_obj_scores,other_scores])
 
-def val_objective_function_generator(pipeline, X_train, y_train, X_test, y_test, scorers, other_objective_functions, memory, cross_val_predict_cv, subset_column):
+def val_objective_function_generator(pipeline, X_train, y_train, X_test, y_test, scorers, other_objective_functions, memory, cross_val_predict_cv, subset_column, sample_weight):
     #subsample the data
     pipeline = pipeline.export_pipeline(memory=memory, cross_val_predict_cv=cross_val_predict_cv, subset_column=subset_column)
     fitted_pipeline = sklearn.base.clone(pipeline)
-    fitted_pipeline.fit(X_train, y_train)
+    fitted_pipeline.fit(X_train, y_train, sample_weight)
 
     if len(scorers) > 0:
         scores =[sklearn.metrics.get_scorer(scorer)(fitted_pipeline, X_test, y_test) for scorer in scorers]

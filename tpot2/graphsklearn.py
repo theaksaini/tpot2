@@ -115,6 +115,7 @@ def fit_sklearn_digraph(graph: nx.DiGraph,
         cross_val_predict_cv = 0, #func(est,X,y) -> transformed_X
         memory = None,
         topo_sort = None,
+        sample_weight = None
         ):
 
     memory = check_memory(memory)
@@ -150,7 +151,10 @@ def fit_sklearn_digraph(graph: nx.DiGraph,
         
 
         if issubclass(type(instance), sklearn.base.RegressorMixin) or issubclass(type(instance), sklearn.base.ClassifierMixin):
-            transformed, instance = estimator_fit_transform_override_cross_val_predict_cached(instance, this_X, y, cv=cross_val_predict_cv, method=method,subset_indexes=subset_indexes)
+            if sample_weight is not None:
+                transformed, instance = estimator_fit_transform_override_cross_val_predict_cached(instance, this_X, y, cv=cross_val_predict_cv, method=method,subset_indexes=subset_indexes, sample_weight=sample_weight)
+            else:
+                transformed, instance = estimator_fit_transform_override_cross_val_predict_cached(instance, this_X, y, cv=cross_val_predict_cv, method=method,subset_indexes=subset_indexes)
         else:
             transformed, instance = fit_transform_one_cached(instance, this_X, y, subset_indexes=subset_indexes)#instance.fit_transform(this_X,y)
         
@@ -327,7 +331,7 @@ class GraphPipeline(_BaseComposition):
         else:
             return str(self.graph.nodes)
 
-    def fit(self, X, y, subset_col = None):
+    def fit(self, X, y, subset_col = None, sample_weight = None):
         # if self.subset_column is not None and self.subset_values is not None:
             
         #     if isinstance(X, pd.DataFrame):
@@ -359,6 +363,7 @@ class GraphPipeline(_BaseComposition):
                                 memory = self.memory,
                                 topo_sort = self.topo_sorted_nodes,
                                 subset_col = subset_col,
+                                sample_weight = sample_weight
                                 )
         
         return self
