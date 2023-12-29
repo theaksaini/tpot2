@@ -65,8 +65,6 @@ def _method_name(name, estimator, method):
 def estimator_fit_transform_override_cross_val_predict(estimator, X, y, cv=5, method='auto',subset_indexes=None,  **fit_params):
 
     method = _method_name(name=estimator.__class__.__name__, estimator=estimator, method=method)
-    print("Estimator params: ", X.shape)
-    print(fit_params)
     
     if cv > 1:
         #TODO subset indexes for cross val predict

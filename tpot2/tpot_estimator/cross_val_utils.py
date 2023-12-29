@@ -6,9 +6,7 @@ import sklearn
 import numpy as np
 
 def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_weight=None):
-def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_weight=None):
     #check if scores is not iterable
-    #print("Sample weight ", sample_weight, len(sample_weight))
     if not isinstance(scorers, Iterable): 
         scorers = [scorers]
     scores = []
@@ -27,7 +25,10 @@ def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_wei
 
 
             start = time.time()
-            this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
+            if sample_weight is not None:
+                this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
+            else:
+                this_fold_pipeline.fit(X_train,y_train)
             duration = time.time() - start
 
             this_fold_scores = [sklearn.metrics.get_scorer(scorer)(this_fold_pipeline, X_test, y_test) for scorer in scorers] 
@@ -54,7 +55,10 @@ def cross_val_score_objective(pipeline, X, y, scorers, cv, fold=None, sample_wei
             y_train, y_test = y[train_index], y[test_index]
 
         start = time.time()
-        this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
+        if sample_weight is not None:
+                this_fold_pipeline.fit(X_train,y_train,sample_weight=sample_weight[train_index])
+        else:
+                this_fold_pipeline.fit(X_train,y_train)
         duration = time.time() - start
         this_fold_scores = [sklearn.metrics.get_scorer(scorer)(this_fold_pipeline, X_test, y_test) for scorer in scorers] 
         return this_fold_scores

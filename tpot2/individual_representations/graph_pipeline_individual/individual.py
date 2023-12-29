@@ -48,9 +48,6 @@ class GraphKey():
     '''
 
     def __init__(self, graph, matched_label='label', sample_weight=None) -> None:#['hyperparameters', 'method_class']) -> None:
-    def __init__(self, graph, matched_label='label', sample_weight=None) -> None:#['hyperparameters', 'method_class']) -> None:
-
-
         self.graph = graph
         self.sample_weight = np.array(sample_weight)
         self.sample_weight = np.array(sample_weight)
@@ -537,7 +534,7 @@ class GraphIndividual(BaseIndividual):
         graph = self.select_graphindividual(rng_=rng)
         if self.sample_weight is not None:
             for i in range(len(self.sample_weight)):
-                if rng.random()<0.8:
+                if rng.random()<0.75:
                     if rng.random()<0.5:
                         self.sample_weight[i] +=1
                     else:

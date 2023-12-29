@@ -162,6 +162,7 @@ class Population():
             if key not in self.evaluated_individuals.index: #If its new, we always add it
                 self.evaluated_individuals.loc[key] = np.nan
                 self.evaluated_individuals.loc[key,"Individual"] = copy.deepcopy(individual)
+                self.evaluated_individuals.loc[key,"sample_weight"] = str(individual.sample_weight)
                 self.population.append(individual)
                 new_individuals.append(individual)
 
@@ -177,6 +178,7 @@ class Population():
                         if key not in self.evaluated_individuals.index:
                             self.evaluated_individuals.loc[key] = np.nan
                             self.evaluated_individuals.loc[key,"Individual"] = copy.deepcopy(individual)
+                            self.evaluated_individuals.loc[key,"sample_weight"] = str(individual.sample_weight)
                             self.population.append(individual)
                             new_individuals.append(individual)
                             break
