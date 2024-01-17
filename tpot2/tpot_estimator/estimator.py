@@ -112,6 +112,7 @@ class TPOTEstimator(BaseEstimator):
 
                          # random seed for random number generator (rng)
                         random_state = None,
+                        final_population_dir = None
 
                         ):
 
@@ -560,6 +561,7 @@ class TPOTEstimator(BaseEstimator):
         self.label_encoder_ = None
 
         self.sensitive_features = sensitive_features
+        self.final_population_dir = final_population_dir
 
         set_dask_settings()
 
@@ -786,6 +788,7 @@ class TPOTEstimator(BaseEstimator):
                                             crossover_then_mutate_probability= self.crossover_then_mutate_probability,
 
                                             rng_=self.rng,
+                                            final_population_dir = self.final_population_dir
                                             )
 
 
