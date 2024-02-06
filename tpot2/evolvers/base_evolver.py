@@ -88,7 +88,7 @@ class BaseEvolver():
                     periodic_checkpoint_folder = None,
                     callback = None,
                     rng_=None,
-                    final_population_dir = None
+                    final_population = None
 
                     ) -> None:
         """
@@ -368,7 +368,7 @@ class BaseEvolver():
             self.population.add_to_population(initial_population, self.rng)
             self.population.update_column(self.population.population, column_names="Generation", data=self.generation)
 
-        self.final_population_dir = final_population_dir
+        self.final_population = None
 
 
     def optimize(self, generations=None):
@@ -483,22 +483,17 @@ class BaseEvolver():
                 if generations is not None and gen >= generations:
                     done = True
 
-                    if self.final_population_dir is not None:
-                        # Save the final population as a dataframe.
-                        final_pop = tpot2.Population(column_names=self.objective_names)
-                        final_pop.add_to_population(self.population.population)
-                        final_pop.evaluated_individuals.loc[final_pop.evaluated_individuals.index, self.objective_names] = self.population.evaluated_individuals.loc[final_pop.evaluated_individuals.index, self.objective_names]
-                        final_pop.remove_invalid_from_population(column_names=self.objective_names, invalid_value="INVALID")
-                        final_pop.remove_invalid_from_population(column_names=self.objective_names, invalid_value="TIMEOUT")
+                    # Save the final population as a dataframe.
+                    final_pop = tpot2.Population(column_names=self.objective_names)
+                    final_pop.add_to_population(self.population.population)
+                    final_pop.evaluated_individuals.loc[final_pop.evaluated_individuals.index, self.objective_names] = self.population.evaluated_individuals.loc[final_pop.evaluated_individuals.index, self.objective_names]
+                    final_pop.remove_invalid_from_population(column_names=self.objective_names, invalid_value="INVALID")
+                    final_pop.remove_invalid_from_population(column_names=self.objective_names, invalid_value="TIMEOUT")
 
-                        final_inds  =  final_pop.evaluated_individuals.copy()
-                        objects = list(final_inds.index)
-                        object_to_int = dict(zip(objects, range(len(objects))))
-                        final_inds = final_inds.set_index(final_inds.index.map(object_to_int))
-                        
-                        print("Saving the final population.")
-                        pickle.dump(final_inds, open(f"{self.final_population_dir}/final_individuals.pkl", "wb"))
-
+                    final_inds  =  final_pop.evaluated_individuals.copy()
+                    objects = list(final_inds.index)
+                    object_to_int = dict(zip(objects, range(len(objects))))
+                    self.final_population = final_inds.set_index(final_inds.index.map(object_to_int))
 
         except KeyboardInterrupt:
             if self.verbose >= 3:

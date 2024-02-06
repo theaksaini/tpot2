@@ -561,7 +561,7 @@ class TPOTEstimator(BaseEstimator):
         self.label_encoder_ = None
 
         self.sensitive_features = sensitive_features
-        self.final_population_dir = final_population_dir
+        self.final_population = None
 
         set_dask_settings()
 
@@ -788,7 +788,6 @@ class TPOTEstimator(BaseEstimator):
                                             crossover_then_mutate_probability= self.crossover_then_mutate_probability,
 
                                             rng_=self.rng,
-                                            final_population_dir = self.final_population_dir
                                             )
 
 
@@ -935,6 +934,8 @@ class TPOTEstimator(BaseEstimator):
             self.fitted_pipeline_ = best_individual_pipeline
 
         self.fitted_pipeline_.fit(X_original,y_original) #TODO use y_original as well?
+
+        self.final_population = self._evolver_instance.final_population
 
 
         if self.client is None: #no client was passed in
