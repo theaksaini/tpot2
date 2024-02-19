@@ -536,9 +536,11 @@ class GraphIndividual(BaseIndividual):
             for i in range(len(self.sample_weight)):
                 if rng.random()<0.75:
                     if rng.random()<0.5:
-                        self.sample_weight[i] +=1
+                        new_val = self.sample_weight[i] + rng.random()
                     else:
-                        self.sample_weight[i] -=1
+                        new_val = self.sample_weight[i] - rng.random()
+                    self.sample_weight[i] = min(max(new_val,0),2)
+
         return graph._mutate(rng_=rng)
 
     def _mutate(self, rng_=None):

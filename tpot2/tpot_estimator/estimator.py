@@ -112,8 +112,6 @@ class TPOTEstimator(BaseEstimator):
 
                          # random seed for random number generator (rng)
                         random_state = None,
-                        final_population_dir = None
-
                         ):
 
         '''

@@ -99,5 +99,5 @@ def make_transformer_config_dictionary(random_state=None, n_features=10):
                 RobustScaler: {},
                 StandardScaler: {},
                 ZeroCount: params_tpot_builtins_ZeroCount,
-                OneHotEncoder: params_tpot_builtins_OneHotEncoder,
+                #OneHotEncoder: params_tpot_builtins_OneHotEncoder,
             }
